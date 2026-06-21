@@ -4,50 +4,61 @@
 
 We are building an **AI Kubernetes Troubleshooting Agent**.
 
-Architecture:
+# Architecture:
 
-```text
-Kubernetes Cluster (pods, deployments, services, events, logs)
-        ↓ kubectl / Kubernetes API
-Investigation Layer (Pod Inspector, Logs Collector, Events Analyzer,
-                      Deployment Inspector, Network Inspector,
-                      Namespace Scope Analyzer)
-        ↓ Structured Investigation Data
-AI Kubernetes Agent (Prompt Builder, LLM Reasoning via OpenRouter,
-                      Root Cause Analyzer, Fix Recommendation Engine,
-                      Confidence Scoring, Incident Severity Engine)
-        ↓ Investigation Result
-InsForge Backend (Auth, API Layer, Investigation History,
-                   Realtime Updates, Investigation Knowledge Base)
-        ↓ API Response
-Frontend Dashboard (Incident, Severity, Confidence, Root Cause, Fix)
+```
+Frontend Dashboard
         ↓
-InsForge Deployment (Frontend + Backend + Public URL)
+FastAPI Backend (Orchestrator)
+        ↓
+Kubernetes Investigation Layer
+        ↓
+AI Kubernetes Agent
+        ↓
+LLM Reasoning (OpenRouter via InsForge)
+        ↓
+Root Cause + Suggested Fix
+        ↓
+Severity Classification
+        ↓
+Actionable kubectl Remediation Commands
+        ↓
+Similar Incident Finder ⭐
+        ↓
+Investigation History Storage
+        ↓
+Investigation Report Generator ⭐
+        ↓
+Frontend Diagnosis Dashboard
 ```
 
 This is an **on-demand troubleshooting system**.
 
-Example flow:
+---
+
+# Example flow:
 
 ```text
-User clicks "Investigate Cluster"
-        ↓
-Frontend calls Investigation Service
-        ↓
-Investigation Layer inspects the cluster
-        ↓
-AI Kubernetes Agent reasons over the evidence
-        ↓
-Result is written to InsForge (history + realtime)
-        ↓
-Diagnosis shown on the Frontend Dashboard
+User Clicks "Run Investigation"
+                ↓
+FastAPI Backend Receives Request
+                ↓
+Kubernetes Investigation Layer
+                ↓
+AI Kubernetes Agent - Builds Investigation Prompt
+                ↓
+OpenRouter LLM - Analyzes Kubernetes Evidence
+                ↓
+Search Similar Previous Incidents
+                ↓
+Store Investigation History
+                ↓
+Generate Investigation Report
+                ↓
+Display Results on Dashboard
 ```
 
 We are **NOT building a Kubernetes controller/operator**.
-
-A note on roles, since this differs from a typical FastAPI+Postgres setup:
-- The **Investigation Layer** and **AI Kubernetes Agent** need a runtime that can run `kubectl`/talk to the Kubernetes API and call an LLM — that's a Python service we own (called `investigation-service` below).
-- **InsForge** is the agent-native backend platform that *is* our "InsForge Backend" layer — it provides Auth, the Database (Investigation History + Investigation Knowledge Base), Realtime Updates, and Site Deployment. We do not hand-roll these ourselves.
 
 ---
 
@@ -76,17 +87,13 @@ Do NOT implement Kubernetes logic, AI reasoning, or InsForge auth/database/realt
 - Pydantic
 - Loguru
 - HTTPX
-- `kubernetes` Python client (installed, unused — placeholder only)
 
 **Frontend:**
 - Next.js
 - TypeScript
 - Tailwind CSS
-- Axios / React Query
-- InsForge JS SDK (installed, unused — placeholder only)
-
-**Backend Platform:**
-- InsForge (cloud project at insforge.dev) — provides Auth, Database, Realtime, Model Gateway, Site Deployment
+- Axios 
+- React Query
 
 **Infrastructure:**
 - Docker
@@ -139,7 +146,7 @@ def inspect_pods():
 
 ---
 
-## Investigation Service Requirements
+## Backend Requirements
 
 Create FastAPI app.
 
@@ -154,7 +161,7 @@ Response:
 ```json
 {
   "status": "healthy",
-  "service": "investigation-service"
+  "service": "ai-k8s-agent"
 }
 ```
 
@@ -189,38 +196,20 @@ This is still a **static placeholder page** — no real API calls, no real statu
 
 ---
 
-## InsForge Requirements
-
-- Create/link an InsForge project for this app (via `npx @insforge/cli login` or the InsForge MCP connection in the editor).
-- Confirm the project is reachable — note the Project URL and API key, store them as env placeholders (see below).
-- Do NOT configure:
-  - Auth providers
-  - Database schema (Investigation History, Investigation Knowledge Base tables)
-  - Realtime channels
-  - Model Gateway routes
-
-These get wired up in later prompts. This step only establishes the link between the project and InsForge.
-
----
-
 ## Environment Variables
 
-`investigation-service/.env`:
+`backend`:
 
 ```env
 OPENROUTER_API_KEY=
 OPENROUTER_MODEL=
 KUBECONFIG_PATH=
-INSFORGE_PROJECT_URL=
-INSFORGE_API_KEY=
 ```
 
 `frontend/.env.local`:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
-NEXT_PUBLIC_INSFORGE_PROJECT_URL=
-NEXT_PUBLIC_INSFORGE_ANON_KEY=
 ```
 
 ---
@@ -228,17 +217,16 @@ NEXT_PUBLIC_INSFORGE_ANON_KEY=
 ## Docker Requirements
 
 Create Dockerfiles for:
-- `investigation-service`
+- `backend`
 - `frontend`
 
 Create docker-compose:
 
 ```text
-investigation-service → port 8000
+backend → port 8000
 frontend               → port 3000
 ```
 
-InsForge is not part of this compose file — it's a linked cloud project (or self-hosted separately via its own `docker-compose.prod.yml` if you choose self-hosting later).
 
 ---
 
