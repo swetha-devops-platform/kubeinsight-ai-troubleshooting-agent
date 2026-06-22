@@ -239,10 +239,6 @@ Avoid generic advice.
 
 ### 5. Confidence Engine
 
----
-
-### 5. Confidence Engine
-
 Generate a confidence score for every diagnosis.
 
 Range:
@@ -287,9 +283,6 @@ High confidence because:
 
 ### 6. Incident Severity Engine
 
----
-
-### 6. Severity Engine
 
 Generate severity for every diagnosis.
 
@@ -353,7 +346,6 @@ The AI should always provide a short explanation for the selected severity level
 
 ## FastAPI Integration
 
-### FastAPI Integration
 
 Update:
 
