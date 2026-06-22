@@ -18,7 +18,6 @@ network
 # Architecture:
 
 ```text
-Minion keep in mind this is the final architcetyure 
 
 Frontend Dashboard
         ↓
