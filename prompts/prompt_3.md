@@ -53,13 +53,13 @@ The AI agent should behave like a **Senior Kubernetes SRE**.
 
 It should:
 
-Understand Kubernetes failures
-Correlate logs, events, deployment state, networking, and namespace scope
-Identify the root cause
-Suggest Kubernetes fixes
-Generate confidence score
-Classify incident severity
-Generate actionable kubectl remediation commands
+- Understand Kubernetes failures
+- Correlate logs, events, deployment state, networking, and namespace scope
+- Identify the root cause
+- Suggest Kubernetes fixes
+- Generate confidence score
+- Classify incident severity
+- Generate actionable kubectl remediation commands
 
 Important:
 
