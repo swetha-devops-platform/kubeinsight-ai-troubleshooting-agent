@@ -139,13 +139,10 @@ Backend:
 http://localhost:8000
 ```
 
-````
-
 ---
 
 
-<img width="1740" height="660" alt="image" src="https://github.com/user-attachments/assets/01f2bbdb-0c03-4ee5-9238-828074ebc6c8" />
-
+<img width="1740" height="660" alt="image" src="https://github.com/user-attachments/assets/3cf5036e-886f-44f2-9a25-5555aafc5392" />
 
 
 ---
