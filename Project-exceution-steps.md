@@ -147,4 +147,3 @@ http://localhost:8000
 
 ---
 
-This is the same style used in many professional GitHub portfolio projects.
