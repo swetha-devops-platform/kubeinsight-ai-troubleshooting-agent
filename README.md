@@ -22,7 +22,7 @@ Troubleshooting Kubernetes issues often requires engineers to:
 
 KubeInsight AI automates this workflow by acting as an AI-powered Kubernetes Investigation Assistant.
 
-Instead of spending 30–60 minutes debugging, engineers receive a structured diagnosis within seconds.
+**Instead of spending 30–60 minutes debugging, engineers receive a structured diagnosis within seconds.**
 
 ---
 
