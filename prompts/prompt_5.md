@@ -2,41 +2,73 @@
 
 ## Context
 
-The application is now complete.
+The KubeInsight AI platform is now functionally complete.
 
-Users can:
+Implemented components:
 
 ```text
-Login
+Frontend Dashboard
         ↓
-Select Kubernetes Cluster
+Authentication (InsForge)
         ↓
-Click "Investigate Cluster"
+Cluster Selection
         ↓
-Backend investigates Kubernetes
+Namespace Selection
         ↓
-Evidence collected
+Kubernetes Investigation Layer
         ↓
-AI Kubernetes Agent analyzes findings
+AI Kubernetes Agent
         ↓
-LLM reasoning performed
+Root Cause Analysis
         ↓
-Root Cause identified
+Evidence-Based Confidence Scoring
         ↓
-Severity classified
+Severity Classification
         ↓
-Remediation commands generated
+kubectl Remediation Commands
         ↓
-Similar incidents found
+Similar Incident Finder
         ↓
-Investigation report generated
+Investigation History Storage
         ↓
-History saved
+Investigation Report Generator
         ↓
-Diagnosis displayed
+Diagnosis Dashboard
 ```
 
-Architecture:
+The application should now function as a complete end-to-end AI-powered Kubernetes troubleshooting platform.
+
+---
+
+# Goal
+
+Implement:
+
+```text
+End-to-End Integration
+
+Reliability Improvements
+
+Cluster Connectivity Validation
+
+Kubernetes Failure Testing
+
+Investigation Validation
+
+Report Validation
+
+History Validation
+
+Deployment Readiness
+```
+
+Keep implementation beginner friendly.
+
+Do not overengineer.
+
+---
+
+# Current Architecture
 
 ```text
 Frontend Dashboard
@@ -53,7 +85,9 @@ Root Cause Analysis
         ↓
 Severity Classification
         ↓
-Actionable kubectl Remediation Commands
+Confidence Scoring
+        ↓
+kubectl Remediation Commands
         ↓
 Similar Incident Finder
         ↓
@@ -64,41 +98,11 @@ Investigation Report Generator
 Frontend Diagnosis Dashboard
 ```
 
-Goal:
-
-1. Integrate all components end-to-end
-2. Test real Kubernetes failures
-3. Improve reliability
-4. Validate multi-cluster investigation workflow
-
-This step should make the system feel like a real AI-powered Kubernetes troubleshooting platform.
-
 ---
 
-## Goal
+# 1. Cluster Selection Validation
 
-Implement:
-
-```text
-End-to-End Integration
-Cluster Selection
-Error Handling
-Loading States
-Real Kubernetes Failure Testing
-Investigation Report Validation
-```
-
-Keep implementation beginner friendly.
-
-Do not overengineer.
-
----
-
-## Requirements
-
-### 1. Kubernetes Cluster Selection
-
-Read all available clusters from the user's kubeconfig file.
+Read available clusters from kubeconfig.
 
 Display:
 
@@ -111,92 +115,68 @@ Available Clusters
 ● production-cluster
 ```
 
-User workflow:
+Requirements:
+
+* Automatically discover kubeconfig contexts
+* Populate cluster dropdown
+* Support manual cluster entry
+* Refresh cluster list
+* Pass selected cluster into investigation workflow
+
+Selected cluster must appear in:
 
 ```text
-Login
-        ↓
-Select Cluster
-        ↓
-Click Investigate
-        ↓
-Investigation runs against selected cluster
+Investigation History
+
+Generated Reports
+
+Diagnosis Results
+```
+
+---
+
+# 2. Namespace Selection Validation
+
+Support:
+
+```text
+default
+
+kube-system
+
+monitoring
+
+all
+
+custom namespace
 ```
 
 Requirements:
 
-* Automatically read kubeconfig
-* Display available cluster names
-* Allow user to select one cluster
-* Pass selected cluster to backend investigation workflow
-
-Keep cluster selection simple.
+* Namespace filtering
+* Namespace-aware investigation
+* Namespace displayed in reports
+* Namespace stored in history
 
 ---
 
-### 2. End-to-End Integration
+# 3. Kubernetes Connectivity Validation
 
-Validate complete workflow.
+Before investigation starts:
 
-Expected flow:
+Validate:
 
-```text
-User Selects Cluster
-        ↓
-User Clicks Investigate
-        ↓
-Frontend sends API request
-        ↓
-FastAPI orchestrates investigation
-        ↓
-Evidence collected
-        ↓
-AI Kubernetes Agent analyzes evidence
-        ↓
-Root Cause generated
-        ↓
-Severity classified
-        ↓
-Remediation commands generated
-        ↓
-Similar incidents retrieved
-        ↓
-Investigation report generated
-        ↓
-History stored
-        ↓
-Realtime UI updated
-        ↓
-User sees diagnosis
+```bash
+kubectl cluster-info
+
+kubectl get nodes
+
+kubectl get pods -A
 ```
 
-Ensure all components work together.
+If validation fails:
 
-Fix integration issues if required.
-
----
-
-### 3. Improve Reliability
-
-Add proper error handling.
-
-Handle:
-
-```text
-kubectl failures
-Cluster unreachable
-Missing kubeconfig
-Invalid cluster selection
-OpenRouter failures
-API timeout
-No unhealthy resources found
-Authentication issues
-Report generation failures
-```
-
-Show user-friendly error messages.
-
-Example:
+Display:
 
 ```text
 Unable to connect to the selected Kubernetes cluster.
@@ -206,80 +186,165 @@ Please verify:
 - kubeconfig configuration
 - cluster accessibility
 - kubectl permissions
+- active cluster status
 ```
 
-Avoid exposing stack traces.
+Do not continue investigation if connectivity validation fails.
 
 ---
 
-### 4. Loading & Empty States
+# 4. End-to-End Integration Validation
 
-When investigation starts:
+Validate complete workflow.
+
+Expected flow:
 
 ```text
-Investigating Kubernetes Cluster...
+User Selects Cluster
+        ↓
+User Selects Namespace
+        ↓
+User Clicks Investigate
+        ↓
+Evidence Collection
+        ↓
+AI Analysis
+        ↓
+Root Cause Analysis
+        ↓
+Confidence Calculation
+        ↓
+Severity Classification
+        ↓
+kubectl Commands Generated
+        ↓
+Similar Incident Search
+        ↓
+Investigation Stored
+        ↓
+Report Generated
+        ↓
+Dashboard Updated
 ```
 
-During investigation:
+All components must work together.
+
+---
+
+# 5. Reliability Improvements
+
+Handle failures gracefully.
+
+Support:
 
 ```text
+kubectl failures
+
+Cluster unreachable
+
+Missing kubeconfig
+
+Invalid cluster
+
+OpenRouter failures
+
+API timeouts
+
+LLM malformed responses
+
+Authentication failures
+
+Report generation failures
+
+History storage failures
+```
+
+Display user-friendly messages.
+
+Never expose stack traces.
+
+---
+
+# 6. Investigation Progress Validation
+
+Display:
+
+```text
+✓ Validating Cluster Access
+
 ✓ Collecting Cluster Information
+
 ✓ Checking Pods
+
 ✓ Reading Logs
+
 ✓ Analyzing Events
+
 ✓ Inspecting Deployments
-✓ Checking Services
+
+✓ Inspecting Networking
+
 ✓ AI Reasoning
+
 ✓ Root Cause Analysis
+
 ✓ Severity Classification
-✓ Generating Remediation Commands
+
+✓ Confidence Calculation
+
+✓ Generating kubectl Commands
+
 ✓ Finding Similar Incidents
+
+✓ Saving Investigation
+
 ✓ Generating Report
+
+✓ Investigation Complete
 ```
 
-If no issues are found:
-
-```text
-No critical Kubernetes issues detected.
-
-Cluster appears healthy.
-```
+Progress updates should appear in realtime.
 
 ---
 
-### 5. Test Real Kubernetes Failures
+# 7. Kubernetes Failure Testing
 
-Create intentional Kubernetes failure scenarios.
+Validate using real failures.
 
-#### Scenario 1 — CrashLoopBackOff
+---
 
-Example:
+## Scenario 1 — CrashLoopBackOff
 
-```text
-Missing environment variable
+Create:
+
+```bash
+kubectl create deployment crashloop-demo \
+--image=busybox \
+-- /bin/sh -c "exit 1"
 ```
 
 Expected:
 
 ```text
 Root Cause:
-Missing environment variable
-
-Suggested Fix:
-Add missing secret/configmap value
+Application repeatedly crashing
 
 Severity:
-High
+HIGH
+
+Confidence:
+88%+
 ```
 
 ---
 
-#### Scenario 2 — ImagePullBackOff
+## Scenario 2 — ImagePullBackOff
 
-Example:
+Create:
 
-```text
-Wrong image tag
+```bash
+kubectl create deployment imagepullbackoff-demo \
+--image=nginx:invalidtag123
 ```
 
 Expected:
@@ -288,140 +353,286 @@ Expected:
 Root Cause:
 Invalid image tag
 
-Suggested Fix:
-Update deployment image
-
 Severity:
-Medium
+MEDIUM
+
+Confidence:
+90%+
 ```
 
 ---
 
-#### Scenario 3 — OOMKilled
-
-Example:
-
-```text
-Low memory limits
-```
+## Scenario 3 — OOMKilled
 
 Expected:
 
 ```text
 Root Cause:
-Container exceeded memory limits
-
-Suggested Fix:
-Increase memory requests and limits
+Container exceeded memory limit
 
 Severity:
-High
+HIGH
+
+Confidence:
+88%+
 ```
 
 ---
 
-#### Scenario 4 — Service Selector Mismatch
-
-Example:
-
-```text
-Incorrect labels
-```
+## Scenario 4 — FailedScheduling
 
 Expected:
 
 ```text
 Root Cause:
-Service selector does not match pod labels
-
-Suggested Fix:
-Update service selector configuration
+Insufficient cluster resources
 
 Severity:
-Medium
+MEDIUM
+
+Confidence:
+85%+
 ```
 
 ---
 
-### 6. Diagnosis Validation
+## Scenario 5 — Service Selector Mismatch
 
-Validate that the diagnosis contains:
+Expected:
+
+```text
+Root Cause:
+Service selector mismatch
+
+Severity:
+MEDIUM
+
+Confidence:
+85%+
+```
+
+---
+
+# 8. Diagnosis Validation
+
+Verify every diagnosis contains:
 
 ```text
 Root Cause
+
 Explanation
-Severity
+
 Suggested Fix
-kubectl Remediation Commands
+
+kubectl Commands
+
+Prevention Recommendation
+
 Confidence Score
+
+Confidence Explanation
+
+Severity
+
+Severity Explanation
+```
+
+Also include:
+
+```text
+Analysis Source
+```
+
+Values:
+
+```text
+AI
+
+Fallback Rule Engine
+```
+
+---
+
+# 9. Similar Incident Validation
+
+Verify:
+
+```text
 Similar Incidents
 ```
 
-Ensure outputs are meaningful and actionable.
+returns up to two matching historical incidents.
+
+Validate:
+
+* Similar Root Cause
+* Similar Severity
+* Similar Failure Pattern
 
 ---
 
-### 7. Investigation Report Validation
+# 10. Investigation History Validation
 
-Validate generated report contains:
+Verify storage of:
 
 ```text
-Investigation Summary
-Evidence Collected
-Root Cause Analysis
-Severity
-Suggested Fix
-kubectl Commands
-Confidence Score
 Timestamp
-Selected Cluster
+
+Cluster
+
+Namespace
+
+Root Cause
+
+Severity
+
+Confidence
+
+Status
 ```
 
-Report should be downloadable from the dashboard.
+Validate:
+
+```text
+Recent Investigations Table
+
+Clear History Button
+```
+
+Requirements:
+
+* History clears immediately
+* UI refreshes automatically
+* No page reload required
 
 ---
 
-## Constraints
+# 11. Investigation Report Validation
 
-DO NOT modify existing investigation logic.
+Verify downloadable reports contain:
 
-DO NOT change AI reasoning workflow.
+```text
+Timestamp
 
-DO NOT introduce unnecessary complexity.
+Cluster
 
-DO NOT add advanced monitoring features.
+Namespace
 
-FastAPI must remain the orchestrator.
+Evidence Collected
 
-Only improve integration, testing, and reliability.
+Root Cause
 
-DO NOT BREAK EXISTING CODE.
+Explanation
+
+Severity
+
+Confidence
+
+Suggested Fix
+
+kubectl Commands
+
+Prevention Recommendation
+```
+
+Report download must work from dashboard.
 
 ---
 
-## Expected Result
+# 12. Dashboard Validation
+
+Verify dashboard contains:
+
+```text
+Cluster Selector
+
+Namespace Input
+
+Investigation Button
+
+Progress Checklist
+
+Diagnosis Card
+
+Severity Card
+
+Confidence Card
+
+Source Card
+
+Similar Incidents
+
+Recent Investigations
+
+Download Report
+
+Clear History
+```
+
+Design:
+
+```text
+Dark Theme
+
+Professional SRE Style
+
+Responsive Layout
+```
+
+---
+
+# Constraints
+
+DO NOT modify:
+
+```text
+Investigation Logic
+
+AI Reasoning Logic
+
+Confidence Rules
+
+Severity Rules
+```
+
+FastAPI remains the orchestrator.
+
+Only improve integration, validation, deployment readiness, and reliability.
+
+Do not break existing code.
+
+---
+
+# Expected Result
 
 Users should be able to:
 
 ```text
 Login
         ↓
-Select Kubernetes Cluster
+Select Cluster
         ↓
-Click Investigate
+Select Namespace
         ↓
-Watch Investigation Progress
+Investigate
+        ↓
+Watch Progress
         ↓
 Receive Diagnosis
         ↓
+View Confidence
+        ↓
+View Severity
+        ↓
 View Similar Incidents
         ↓
-Download Investigation Report
+Download Report
         ↓
 Review Investigation History
+        ↓
+Clear History
 ```
 
 The platform should now feel like:
 
-> KubeInsight AI – A Production-Style AI Kubernetes Troubleshooting Platform.
-
+> KubeInsight AI – A Production-Style AI-Powered Kubernetes Troubleshooting Platform.
