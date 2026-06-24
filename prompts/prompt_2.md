@@ -4,260 +4,450 @@
 
 Project setup is already completed (Prompt 1).
 
-We now want to build the **Kubernetes Investigation Layer** inside
-`investigation-service`.
+We now want to build the Kubernetes Investigation Layer inside the `investigation-service`.
 
 Architecture:
 
 ```text
 Frontend Dashboard
-    ↓
+        ↓
 FastAPI Backend (Orchestrator)
-    ↓
+        ↓
 Kubernetes Investigation Layer
+        ├── Kubectl Executor
         ├── Pod Inspector
         ├── Logs Collector
         ├── Events Analyzer
         ├── Deployment Inspector
         ├── Network Inspector
-        └── Namespace Scope Analyzer ⭐
-    ↓
+        └── Namespace Scope Analyzer
+        ↓
 AI Kubernetes Agent
 ```
 
 Goal:
 
-This layer should behave like a **junior DevOps engineer collecting
-evidence** before AI reasoning starts.
+This layer should behave like a **junior DevOps engineer collecting evidence** before AI reasoning starts.
 
 Important:
 
-We are still **NOT implementing AI reasoning**.
+We are still NOT implementing:
 
-We are only collecting Kubernetes troubleshooting data.
+* OpenRouter
+* LLM reasoning
+* Root cause analysis
+* Severity classification
+* Confidence scoring
+* Suggested fixes
+* kubectl remediation commands
+* Similar Incident Finder
+* Investigation History
+* Report Generator
 
-Use **kubectl commands internally** (not the Kubernetes Python SDK).
+This prompt is ONLY for Kubernetes evidence collection.
+
+Use:
+
+```text
+kubectl
+```
+
+internally for all Kubernetes interactions.
+
+Do NOT use the Kubernetes Python SDK.
 
 ---
 
-## Goal
-
-Goal
+# Goal
 
 Build the Kubernetes Investigation Layer.
 
 Implement:
 
-```
-- Pod Inspector
-- Logs Collector
-- Events Analyzer
-- Deployment Inspector
-- Network Inspector
-- Namespace Scope Analyzer
-- Kubectl Executor
-- Investigation Service
+```text
+Kubectl Executor
+
+Pod Inspector
+
+Logs Collector
+
+Events Analyzer
+
+Deployment Inspector
+
+Network Inspector
+
+Namespace Scope Analyzer
+
+Investigation Service
 ```
 
 The FastAPI backend should orchestrate these components and produce structured investigation data for the AI Kubernetes Agent.
 
 ---
 
-## Requirements
+# Project Structure
 
-Requirements
+```text
+investigation-service/
 
-### 1. Kubectl Executor
+└── app
+    ├── api
+    │   └── investigate.py
+    │
+    ├── investigation
+    │   ├── kubectl_executor.py
+    │   ├── pod_inspector.py
+    │   ├── logs_collector.py
+    │   ├── events_analyzer.py
+    │   ├── deployment_inspector.py
+    │   ├── network_inspector.py
+    │   ├── namespace_scope.py
+    │   └── investigation_service.py
+    │
+    └── main.py
+```
 
-Create a reusable utility to safely execute kubectl commands.
+Keep the implementation modular and beginner friendly.
 
-Requirements:
+---
 
+# 1. Kubectl Executor
+
+Create:
+
+```text
+kubectl_executor.py
+```
+
+Responsibilities:
+
+* Execute kubectl commands safely
 * Use Python subprocess
-* Capture stdout/stderr
+* Capture stdout
+* Capture stderr
 * Handle failures gracefully
 * Return structured output
 * Add logging
 
 Example supported commands:
 
-* kubectl get pods -A
-* kubectl get events -A
-* kubectl logs <pod-name>
-* kubectl describe deployment <deployment-name>
-* kubectl get svc -A
+```bash
+kubectl get pods -A
 
-Keep implementation clean and beginner friendly.
+kubectl get events -A
+
+kubectl get deployments -A
+
+kubectl get svc -A
+
+kubectl get endpoints -A
+
+kubectl logs <pod-name>
+
+kubectl describe deployment <deployment-name>
+```
+
+Example response:
+
+```json
+{
+  "success": true,
+  "output": "...",
+  "error": null
+}
+```
+
+Do not crash if kubectl fails.
 
 ---
 
-### 2. Pod Inspector
+# 2. Pod Inspector
+
+Create:
+
+```text
+pod_inspector.py
+```
 
 Responsibilities:
 
-* Get pod status
-* Detect unhealthy pods
+* Retrieve pod status
+* Detect unhealthy workloads
 
 Detect:
 
-* CrashLoopBackOff
-* ImagePullBackOff
-* Pending
-* Error
-* OOMKilled
-* ContainerCreating (stuck)
+```text
+CrashLoopBackOff
 
-Return structured JSON.
+ImagePullBackOff
 
-Example:
+ErrImagePull
+
+Pending
+
+Error
+
+OOMKilled
+
+ContainerCreating
+
+FailedScheduling
 ```
+
+Return:
+
+```json
 {
-"healthy": false,
-"problematic_pods": [
-{
-"name": "payment-service",
-"namespace": "default",
-"status": "CrashLoopBackOff"
-}
-]
+  "healthy": false,
+  "problematic_pods": [
+    {
+      "name": "payment-api",
+      "namespace": "payment",
+      "status": "CrashLoopBackOff"
+    }
+  ]
 }
 ```
+
 ---
 
-### 3. Logs Collector
+# 3. Logs Collector
+
+Create:
+
+```text
+logs_collector.py
+```
 
 Responsibilities:
 
-* Fetch logs for failed pods
-* Capture relevant failures
+* Fetch logs for problematic pods
+* Keep logs concise
 
-Focus on:
+Capture:
 
-* Exceptions
-* Connection failures
-* Missing environment variables
-* Image failures
-* Startup errors
+```text
+Exceptions
 
-Keep logs concise.
+Connection failures
+
+Startup failures
+
+Database errors
+
+Missing environment variables
+
+Application crashes
+```
+
+Limit returned logs.
 
 Do not return thousands of lines.
 
 ---
 
-### 4. Events Analyzer
+# 4. Events Analyzer
+
+Create:
+
+```text
+events_analyzer.py
+```
 
 Responsibilities:
 
 * Read Kubernetes events
+* Summarize relevant findings
 
 Detect:
 
-* FailedScheduling
-* BackOff
-* FailedMount
-* FailedPull
-* ErrImagePull
-* Unhealthy
+```text
+FailedScheduling
 
-Return summarized findings.
+BackOff
+
+FailedMount
+
+FailedPull
+
+ErrImagePull
+
+Unhealthy
+```
+
+Return structured summaries.
+
+Example:
+
+```json
+{
+  "issues": [
+    {
+      "type": "FailedScheduling",
+      "message": "0/1 nodes available"
+    }
+  ]
+}
+```
 
 ---
 
-### 5. Deployment Inspector
+# 5. Deployment Inspector
+
+Create:
+
+```text
+deployment_inspector.py
+```
 
 Responsibilities:
 
-* Inspect deployments
+Inspect deployments.
 
 Check:
 
-* Available replicas
-* Unavailable replicas
-* Rollout failures
-* Deployment conditions
+```text
+Desired Replicas
+
+Available Replicas
+
+Unavailable Replicas
+
+Deployment Conditions
+
+Rollout Failures
+```
 
 Detect unhealthy deployments.
 
+Return deployment health information.
+
 ---
 
-### 6. Network Inspector
+# 6. Network Inspector
+
+Create:
+
+```text
+network_inspector.py
+```
 
 Responsibilities:
 
-* Inspect services and networking
+Inspect Kubernetes networking.
 
 Check:
 
-* Service existence
-* Selector mismatch
-* Missing endpoints
-* DNS-related issues
+```text
+Services
+
+Endpoints
+
+Selector Matching
+
+Missing Endpoints
+
+DNS-related Issues
+```
+
+Detect:
+
+```text
+Service Selector Mismatch
+
+Missing Service Endpoints
+```
+
+Return structured findings.
 
 ---
 
-### 7. Namespace Scope Analyzer
+# 7. Namespace Scope Analyzer
+
+Create:
+
+```text
+namespace_scope.py
+```
 
 Responsibilities:
 
 * Analyze target namespace
 * Identify affected workloads
 * Reduce investigation scope
-* Return impacted resources only
 
 Example:
 
-```
+```json
 {
-"namespace": "payment",
-"affected_workloads": [
-"payment-api",
-"payment-worker"
-]
+  "namespace": "payment",
+  "affected_workloads": [
+    "payment-api",
+    "payment-worker"
+  ]
 }
 ```
-Keep implementation simple and lightweight.
+
+Keep implementation lightweight.
 
 ---
 
-### 8. Investigation Service
+# 8. Investigation Service
 
-Create a service that orchestrates everything.
+Create:
+
+```text
+investigation_service.py
+```
+
+Responsibilities:
+
+Orchestrate all investigation modules.
 
 Flow:
-```
+
+```text
 Check Pods
-↓
+      ↓
 Collect Logs
-↓
+      ↓
 Analyze Events
-↓
+      ↓
 Inspect Deployments
-↓
-Check Networking
-↓
+      ↓
+Inspect Networking
+      ↓
 Analyze Namespace Scope
 ```
 
 Return a single structured investigation payload.
 
 Example:
-```
+
+```json
 {
-"pods": {},
-"logs": {},
-"events": {},
-"deployments": {},
-"network": {},
-"namespace_scope": {}
+  "cluster": "minikube",
+  "namespace": "default",
+  "pods": {},
+  "logs": {},
+  "events": {},
+  "deployments": {},
+  "network": {},
+  "namespace_scope": {},
+  "summary": {
+    "problematic_pods": 2,
+    "unhealthy_deployments": 1,
+    "network_issues": 1
+  }
 }
 ```
-The investigation payload will later be consumed by the AI Kubernetes Agent.
 
+This payload will later be consumed by the AI Kubernetes Agent.
 
 ---
 
-## FastAPI API
+# FastAPI API
 
 Create Endpoint:
 
@@ -265,58 +455,134 @@ Create Endpoint:
 POST /investigate
 ```
 
+Request:
+
+```json
+{
+  "cluster": "minikube",
+  "namespace": "default"
+}
+```
+
 When called:
 
 1. Run the full investigation flow
 2. Return structured Kubernetes evidence
 
-Example response:
-```
+Response:
+
+```json
 {
   "status": "success",
   "investigation": {
+    "cluster": "minikube",
+    "namespace": "default",
     "pods": {},
     "logs": {},
     "events": {},
     "deployments": {},
     "network": {},
-    "namespace_scope": {}
+    "namespace_scope": {},
+    "summary": {}
   }
 }
 ```
 
-No AI yet. 
+No AI yet.
 
-No root cause analysis yet. 
+No root cause analysis.
 
-This step is only evidence gathering.
+Evidence gathering only.
 
 ---
 
-## Constraints
+# Kubernetes Access Requirements
+
+The backend container must use:
+
+```text
+kubectl
+```
+
+to access Minikube.
+
+Support:
+
+```yaml
+volumes:
+  - ${HOME}/.kube:/root/.kube:ro
+  - ${HOME}/.minikube:${HOME}/.minikube:ro
+```
+
+The investigation layer should work with:
+
+```bash
+kubectl get pods -A
+
+kubectl get events -A
+
+kubectl get deployments -A
+
+kubectl get svc -A
+
+kubectl get endpoints -A
+```
+
+---
+
+# Constraints
 
 DO NOT implement:
 
+```text
 OpenRouter
-LLM reasoning
-Root cause analysis
-Fix recommendation
-InsForge integration
-Authentication
-Realtime updates
-Do NOT use Kubernetes SDK.
 
-Use kubectl internally only.
+LLM Reasoning
 
-Keep code modular and beginner friendly.
+Root Cause Analysis
 
-DO NOT BREAK EXISTING CODE.
+Suggested Fixes
+
+Severity Classification
+
+Confidence Scoring
+
+kubectl Remediation Commands
+
+Investigation History
+
+Similar Incident Finder
+
+Report Generator
+
+InsForge Authentication
+
+Realtime Updates
+```
+
+Do NOT use:
+
+```text
+Kubernetes Python SDK
+```
+
+Use:
+
+```text
+kubectl only
+```
+
+Keep code modular.
+
+Keep code beginner friendly.
+
+Do not break existing code.
 
 Only extend the project incrementally.
 
 ---
 
-## Expected Result
+# Expected Result
 
 I should be able to call:
 
@@ -324,7 +590,8 @@ I should be able to call:
 POST /investigate
 ```
 
-And receive structured Kubernetes troubleshooting evidence 
+and receive structured Kubernetes troubleshooting evidence.
+
 The backend should now behave like:
 
-> A junior DevOps engineer collecting debugging evidence.
+> A junior DevOps engineer collecting debugging evidence before AI analysis begins.
