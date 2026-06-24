@@ -15,16 +15,22 @@ Root Cause Analysis
         ↓
 Severity Classification
         ↓
+Evidence-Based Confidence Scoring
+        ↓
 Suggested Fix
         ↓
 kubectl Remediation Commands
         ↓
 Similar Incident Search
         ↓
+Investigation History Storage
+        ↓
 Investigation Report Generation
-````
+```
 
-# Architecture:
+---
+
+## Architecture
 
 ```text
 Frontend Dashboard
@@ -41,6 +47,8 @@ Root Cause Analysis
         ↓
 Severity Classification
         ↓
+Confidence Scoring
+        ↓
 Actionable kubectl Commands
         ↓
 Similar Incident Finder
@@ -50,108 +58,129 @@ Investigation History Storage
 Investigation Report Generator
 ```
 
-# Goal:
-
-Build a simple frontend dashboard that allows users to:
-
-```text
-Click Investigate
-        ↓
-Watch Investigation Progress
-        ↓
-Receive Diagnosis
-        ↓
-View Similar Incidents
-        ↓
-Download Investigation Report
-        ↓
-View Investigation History
-```
-
-Keep everything simple and professional.
-
-
-Use InsForge for:
-
-- Authentication
-- Investigation History Storage
-- Realtime Investigation Progress Updates
-
 ---
 
 ## Goal
 
-Build the Frontend Dashboard + API Integration.
+Build the KubeInsight AI Dashboard.
 
-Implement:
+Users should be able to:
 
 ```text
-Minimal Dashboard
-Authentication (InsForge)
-Realtime Investigation Progress
-Diagnosis Display
-Investigation History
-Report Download
-Frontend → Backend Integration
+Login
+      ↓
+Select Kubernetes Cluster
+      ↓
+Select Namespace
+      ↓
+Run Investigation
+      ↓
+Watch Investigation Progress
+      ↓
+Receive Diagnosis
+      ↓
+View Confidence Score
+      ↓
+View Severity
+      ↓
+View Similar Incidents
+      ↓
+Download Investigation Report
+      ↓
+Review Investigation History
 ```
-
-Keep UI minimal and clean.
-
-Do not overengineer.
 
 ---
 
-## Requirements
+## Authentication
 
-### 1. Authentication(Insforge)
-
-Add authentication using InsForge.
+Use InsForge.
 
 Requirements:
 
-* Login support
-* Protected dashboard
-* User session handling
+* Login
+* Signup
+* Session Handling
+* Protected Dashboard
+* Logout
 
 Only authenticated users can:
 
-```text
-Trigger Investigation
-View Investigation History
-View Diagnosis Results
-Download Investigation Reports
-```
-
-Keep authentication implementation minimal and clean.
-
-Avoid unnecessary complexity.
+* Run Investigations
+* Access Investigation History
+* Download Reports
+* View Similar Incidents
 
 ---
 
-### 2. Investigation Dashboard
-
-Build a minimal professional dashboard.
-
-UI Sections:
+## Dashboard Layout
 
 ### Header
 
 ```text
 KubeInsight AI
-AI Kubernetes Troubleshooting Agent
+AI-Powered Kubernetes Troubleshooting Agent
 ```
 
-### Main CTA
+---
 
-Button:
+### Cluster Selection
+
+Display available clusters.
+
+Example:
+
+```text
+Cluster
+
+[ minikube ▼ ]
+
+[ Refresh ]
+```
+
+Support manual cluster entry if auto-discovery fails.
+
+---
+
+### Namespace Selection
+
+Allow namespace filtering.
+
+Example:
+
+```text
+Namespace
+
+[ default ]
+```
+
+Support:
+
+```text
+default
+kube-system
+monitoring
+all
+custom namespace
+```
+
+---
+
+### Investigation Action
+
+Primary button:
 
 ```text
 [ Investigate Cluster ]
 ```
 
-### 3.  Investigation Progress
+Disable while investigation is running.
 
-Show realtime investigation progress.
+---
+
+## Investigation Progress
+
+Show realtime progress.
 
 Example:
 
@@ -161,90 +190,166 @@ Example:
 ✓ Reading Logs
 ✓ Analyzing Events
 ✓ Inspecting Deployments
-✓ Checking Services
+✓ Inspecting Services
+✓ Inspecting Networking
 ✓ AI Reasoning
 ✓ Root Cause Identified
 ✓ Severity Classified
-✓ Generating Remediation Commands
+✓ Calculating Confidence
+✓ Generating Commands
 ✓ Finding Similar Incidents
+✓ Generating Report
 ✓ Investigation Complete
 ```
 
-Progress should update while the backend investigation runs.
-
-Use InsForge realtime capabilities for progress updates.
-
-Keep the UI simple, clean, and professional.
+Use InsForge realtime updates.
 
 ---
 
-### 4. Diagnosis Card
+## Diagnosis Panel
+
+Display investigation results.
+
+Fields:
+
+```text
+Root Cause
+
+Explanation
+
+Suggested Fix
+
+kubectl Commands
+
+Prevention Recommendation
+```
+
+---
+
+## Severity Card
 
 Display:
 
 ```text
-Root Cause
-Explanation
 Severity
-Suggested Fix
-kubectl Remediation Commands
+
+CRITICAL
+HIGH
+MEDIUM
+LOW
+```
+
+Show severity explanation.
+
+---
+
+## Confidence Card
+
+Display:
+
+```text
 Confidence Score
+
+92%
+```
+
+Also show:
+
+```text
+Confidence Explanation
 ```
 
 Example:
 
 ```text
-Root Cause:
-DATABASE_URL missing
+CrashLoopBackOff detected
 
-Explanation:
-Application failed during startup because the required environment variable was not configured.
+BackOff events detected
 
-Severity:
-High
+Container restart count high
 
-Suggested Fix:
-Add the missing environment variable to the deployment configuration.
-
-kubectl Command:
-kubectl edit deployment payment-service
-
-Confidence:
-92%
+Logs confirm startup failure
 ```
-
-Keep styling clean and beginner friendly.
-
-No complex UI.
-
-Display diagnosis information in a single card after investigation completes.
-
 
 ---
 
-### 5. Similar Incident Section
+## Analysis Source Card
 
-Display similar past incidents.
+Display source:
 
-Example:
+```text
+AI Analysis
+
+or
+
+Fallback Rule Engine
+```
+
+Useful when LLM is unavailable.
+
+---
+
+## Similar Incidents
+
+Display:
 
 ```text
 Similar Incidents
 
 CrashLoopBackOff
+
 ImagePullBackOff
+
 OOMKilled
 ```
 
-Simple list is enough.
+Show up to two similar incidents.
 
 ---
 
-### 6. Investigation Report
+## Investigation History
 
-Allow user to download generated report.
+Display:
 
-Button:
+```text
+Recent Investigations
+```
+
+Columns:
+
+```text
+Timestamp
+
+Cluster
+
+Namespace
+
+Root Cause
+
+Severity
+
+Confidence
+
+Status
+```
+
+Include:
+
+```text
+[ Clear History ]
+```
+
+Requirements:
+
+* Delete stored history
+* Refresh UI immediately
+* No page reload
+
+---
+
+## Report Download
+
+Display:
 
 ```text
 [ Download Report ]
@@ -252,46 +357,21 @@ Button:
 
 Report contains:
 
-```text
-Investigation Summary
-Evidence Collected
-Root Cause
-Severity
-Suggested Fix
-kubectl Commands
-Confidence Score
-```
+* Timestamp
+* Cluster
+* Namespace
+* Root Cause
+* Explanation
+* Severity
+* Confidence
+* Suggested Fix
+* kubectl Commands
+* Prevention Recommendation
+* Collected Evidence
 
 ---
 
-### 7. Investigation History
-
-Store and display:
-
-```text
-Timestamp
-Namespace
-Root Cause
-Severity
-Confidence
-Status
-```
-
-Example:
-
-```text
-Recent Investigations
-
-CrashLoopBackOff
-ImagePullBackOff
-OOMKilled
-```
-
-Simple table only.
-
----
-
-### 8. Frontend API Integration
+## API Integration
 
 Frontend should call:
 
@@ -299,104 +379,94 @@ Frontend should call:
 POST /investigate
 ```
 
+Payload:
+
+```json
+{
+  "cluster": "minikube",
+  "namespace": "default"
+}
+```
+
 Flow:
 
 ```text
 User Clicks Investigate
         ↓
-Backend Investigation Starts
+Backend Starts Investigation
         ↓
-Progress Updates
+Realtime Progress Updates
         ↓
 Diagnosis Returned
         ↓
-History Stored
+History Saved
         ↓
 Report Generated
         ↓
 UI Updated
 ```
 
+---
+
+## Error Handling
+
 Handle:
 
+* Backend Offline
+* Investigation Failure
+* Empty Responses
+* LLM Failure
+* Kubernetes Access Failure
+* RBAC Errors
+* kubeconfig Errors
+* Timeout Errors
+
+Show meaningful messages.
+
+Never display generic:
+
 ```text
-Loading State
-API Errors
-Timeouts
-Empty Responses
+Something went wrong
 ```
 
 ---
 
-## UI Layout
+## UI Design Requirements
 
-```text
-------------------------------------------------
+Use:
 
-KubeInsight AI
+* Next.js
+* TypeScript
+* TailwindCSS
 
-[ Investigate Cluster ]
+Design:
 
-Investigation Progress
+* Dark Theme
+* Professional SRE Style
+* Responsive Layout
+* Clean Cards
+* Minimal Design
 
-✓ Checking Pods
-✓ Reading Logs
-✓ AI Reasoning
+Do NOT add:
 
-Diagnosis
-
-Root Cause:
-CrashLoopBackOff
-
-Severity:
-High
-
-Suggested Fix:
-Update Environment Variable
-
-Confidence:
-92%
-
-Similar Incidents
-
-CrashLoopBackOff
-OOMKilled
-
-[ Download Report ]
-
-Recent Investigations
-
-CrashLoopBackOff
-ImagePullBackOff
-
-------------------------------------------------
-```
-
-Simple.
-
-Professional.
-
-Easy to demonstrate.
+* Complex Charts
+* Fancy Animations
+* Overengineered Components
 
 ---
 
 ## Constraints
 
-DO NOT change existing investigation logic.
+DO NOT modify:
 
-DO NOT modify AI reasoning workflow.
+* Investigation Layer
+* AI Reasoning Logic
+* Confidence Logic
+* Severity Logic
 
-DO NOT introduce complex frontend architecture.
+FastAPI remains the orchestrator.
 
-DO NOT add charts.
-
-DO NOT add unnecessary features.
-
-FastAPI must remain the orchestrator.
-
-Only extend current functionality.
-
-DO NOT BREAK EXISTING CODE.
+Only build dashboard and integration.
 
 ---
 
@@ -406,22 +476,30 @@ Users should be able to:
 
 ```text
 Login
-        ↓
-Open Dashboard
-        ↓
-Click Investigate
-        ↓
+      ↓
+Select Cluster
+      ↓
+Select Namespace
+      ↓
+Investigate
+      ↓
 Watch Progress
-        ↓
+      ↓
 Receive Diagnosis
-        ↓
+      ↓
+View Confidence
+      ↓
+View Severity
+      ↓
 View Similar Incidents
-        ↓
+      ↓
 Download Report
-        ↓
-Access Investigation History
+      ↓
+View Investigation History
+      ↓
+Clear History
 ```
 
 The application should now feel like:
 
-**KubeInsight AI – An AI-Powered Kubernetes Troubleshooting Platform.**
+"KubeInsight AI – An AI-Powered Kubernetes Troubleshooting Platform."
