@@ -1,3 +1,4 @@
+,,,
 services:
   investigation-service:
     build:
@@ -29,3 +30,4 @@ services:
     depends_on:
       - investigation-service
     command: npm run dev
+,,,
