@@ -239,24 +239,17 @@ Avoid generic advice.
 
 ### 5. Confidence Engine
 
-Generate a confidence score for every diagnosis.
+Confidence must be evidence-based.
+Do not allow a bad LLM value like 0% to override strong Kubernetes evidence.
 
-Range:
+Rules:
 
-```text
-0 - 100%
-```
-
-The confidence score should be based on the quality and consistency of evidence collected from:
-
-* Pod Status
-* Logs
-* Kubernetes Events
-* Deployment Health
-* Networking Findings
-* Namespace Scope Analysis
-
-Higher confidence should be assigned when multiple investigation sources point to the same root cause.
+- ImagePullBackOff / ErrImagePull >= 90%
+- CrashLoopBackOff / OOMKilled >= 88%
+- FailedPull / BackOff events >= 85%
+- Healthy cluster >= 90%
+- Weak evidence = lower confidence
+- The dashboard should show the final computed confidence score.
 
 ---
 
