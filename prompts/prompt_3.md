@@ -4,21 +4,27 @@
 
 The Kubernetes Investigation Layer is complete (Prompt 2).
 
-We can now collect Kubernetes troubleshooting evidence 
+The system can now collect Kubernetes troubleshooting evidence.
+
+Collected evidence includes:
 
 ```text
-namespaces   
-pods         
-logs         
-events       
-deployments  
-network      
+Cluster
+Namespace
+Pods
+Logs
+Events
+Deployments
+Services
+Endpoints
+Networking Findings
+Namespace Scope
+Investigation Summary
 ```
 
-# Architecture:
+Architecture:
 
 ```text
-
 Frontend Dashboard
         ↓
 FastAPI Backend (Orchestrator)
@@ -29,89 +35,116 @@ AI Kubernetes Agent
         ↓
 LLM Reasoning (OpenRouter via InsForge)
         ↓
-Root Cause + Suggested Fix
+Root Cause Analysis
         ↓
 Severity Classification
         ↓
-Actionable kubectl Remediation Commands
+Evidence-Based Confidence Scoring
         ↓
-Similar Incident Finder ⭐
+Actionable kubectl Commands
         ↓
-Investigation History Storage
-        ↓
-Investigation Report Generator ⭐
-        ↓
-Frontend Diagnosis Dashboard
+Diagnosis Object
 ```
 
 Goal:
 
-We now want to make the system intelligent.
+The AI Kubernetes Agent should behave like a:
 
-The AI agent should behave like a **Senior Kubernetes SRE**.
+```text
+Senior Kubernetes SRE
+```
 
-It should:
+The agent should:
 
-- Understand Kubernetes failures
-- Correlate logs, events, deployment state, networking, and namespace scope
-- Identify the root cause
-- Suggest Kubernetes fixes
-- Generate confidence score
-- Classify incident severity
-- Generate actionable kubectl remediation commands
+* Analyze Kubernetes evidence
+* Correlate logs, events, deployments, networking, and namespace scope
+* Determine root cause
+* Suggest Kubernetes-specific fixes
+* Generate remediation commands
+* Classify severity
+* Calculate confidence score
+* Provide prevention recommendations
 
 Important:
 
-Use OpenRouter API Key provided via InsForge.
+Use OpenRouter credentials provided via InsForge.
 
-Do not hardcode secrets.
+Never hardcode secrets.
 
 ---
 
-## Goal
+# Goal
 
-Build the **AI Kubernetes Agent** inside
-`investigation-service/app/ai/`.
+Build the AI Kubernetes Agent.
 
 Implement:
 
 ```text
 Prompt Builder
+
 LLM Client
+
 Root Cause Analyzer
+
 Fix Recommendation Engine
+
 Confidence Engine
-Incident Severity Engine
+
+Severity Engine
 ```
 
 The AI layer consumes the investigation payload generated in Prompt 2.
 
 ---
 
-## Requirements
+# Project Structure
 
-### 1. Prompt Builder
+```text
+investigation-service/
 
-The system prompt should make the LLM behave like:
+└── app
+    ├── ai
+    │   ├── prompt_builder.py
+    │   ├── llm_client.py
+    │   ├── root_cause_analyzer.py
+    │   ├── confidence_engine.py
+    │   ├── severity_engine.py
+    │   └── diagnosis_service.py
+```
+
+Keep implementation simple and beginner friendly.
+
+---
+
+# 1. Prompt Builder
+
+Create:
+
+```text
+prompt_builder.py
+```
+
+The system prompt should make the model behave like:
 
 ```text
 Senior Kubernetes SRE
 ```
 
-The prompt must include:
+Prompt must include:
 
 ```text
-Affected Namespaces
+Cluster
+Namespace
 Affected Workloads
 Pod Status
 Logs
 Events
 Deployment Health
 Networking Findings
-Namespace Scope Analysis
+Namespace Scope
 ```
 
-The AI must return:
+The model must return:
 
 ```text
 1. Root Cause
@@ -120,33 +153,33 @@ The AI must return:
 
 3. Suggested Fix
 
-4. kubectl Remediation Commands
+4. kubectl Commands
 
 5. Prevention Recommendation
 
-6. Confidence Score
+6. Severity
 
-7. Severity
-   (Critical / High / Medium / Low)
+7. Severity Explanation
 ```
 
+Prompts should be structured and deterministic.
 
-Prompt should be structured and deterministic. Avoid vague answers.
+Avoid vague responses.
 
 ---
 
-### 2. LLM Client
+# 2. LLM Client
+
+Create:
+
+```text
+llm_client.py
+```
 
 Use:
 
 ```text
 OpenRouter
-```
-
-Authentication:
-
-```text
-OpenRouter API Key from InsForge
 ```
 
 Read from:
@@ -158,25 +191,30 @@ OPENROUTER_MODEL=
 
 Requirements:
 
-- Use HTTPX
-- Add timeout handling
-- Handle API failures gracefully
-- Add retries 
-- Log errors cleanly
+* HTTPX
+* Timeout handling
+* Retry support
+* Error handling
+* Structured response parsing
+* Clean logging
 
-Do not expose secrets.
-
-Keep implementation simple and explainable.
+Never expose secrets.
 
 ---
 
-### 3. Root Cause Analyzer
+# 3. Root Cause Analyzer
 
-Consume investigation payload.
+Create:
+
+```text
+root_cause_analyzer.py
+```
+
+Consume the investigation payload from Prompt 2.
 
 Example input:
 
-```
+```json
 {
   "pods": {
     "status": "CrashLoopBackOff"
@@ -186,35 +224,38 @@ Example input:
   },
   "events": {
     "warning": "BackOff restarting failed container"
-  },
-  "deployments": {
-    "available_replicas": 0
-  },
-  "network": {},
-  "namespace_scope": {
-    "namespace": "payment",
-    "affected_workloads": ["payment-api"]
   }
 }
 ```
 
-Expected reasoning:
+Expected output:
 
+```text
 Root Cause:
-Application failed because the DATABASE_URL environment variable is missing.
 
+Application failed because DATABASE_URL is missing.
+```
+
+The analyzer should correlate:
+
+* Pod state
+* Logs
+* Events
+* Deployment health
+* Networking findings
 
 ---
 
-### 4. Fix Recommendation Engine
+# 4. Fix Recommendation Engine
 
 Generate actionable fixes.
 
 Example:
-```
+
+```text
 Suggested Fix:
 
-Add the DATABASE_URL environment variable to the deployment configuration and redeploy the application.
+Add DATABASE_URL to the deployment configuration.
 
 kubectl Commands:
 
@@ -224,34 +265,50 @@ kubectl rollout restart deployment/payment-api
 
 Prevention Recommendation:
 
-Validate required environment variables during CI/CD deployment and implement startup configuration checks.
-
+Validate required environment variables during CI/CD deployment.
 ```
+
 Recommendations must be:
 
-- practical
-- beginner friendly
-- Kubernetes-specific
+* Practical
+* Beginner friendly
+* Kubernetes specific
 
 Avoid generic advice.
 
 ---
 
-### 5. Confidence Engine
+# 5. Confidence Engine
+
+Create:
+
+```text
+confidence_engine.py
+```
 
 Confidence must be evidence-based.
-Do not allow a bad LLM value like 0% to override strong Kubernetes evidence.
+
+Do NOT allow weak LLM output to override strong Kubernetes evidence.
 
 Rules:
 
-- ImagePullBackOff / ErrImagePull >= 90%
-- CrashLoopBackOff / OOMKilled >= 88%
-- FailedPull / BackOff events >= 85%
-- Healthy cluster >= 90%
-- Weak evidence = lower confidence
-- The dashboard should show the final computed confidence score.
+```text
+ImagePullBackOff >= 90%
 
----
+ErrImagePull >= 90%
+
+CrashLoopBackOff >= 88%
+
+OOMKilled >= 88%
+
+FailedScheduling >= 85%
+
+BackOff Events >= 85%
+
+Healthy Cluster >= 90%
+
+Weak Evidence = Lower Confidence
+```
 
 Example:
 
@@ -259,44 +316,56 @@ Example:
 Confidence: 92%
 ```
 
-Reasoning:
+Explanation:
 
 ```text
-High confidence because:
+CrashLoopBackOff detected
 
-- Pod state = CrashLoopBackOff
-- Logs clearly show DATABASE_URL missing
-- Kubernetes events show repeated container restarts
-- Deployment has 0 available replicas
-- All findings indicate application startup failure
+BackOff events detected
+
+Logs show missing DATABASE_URL
+
+Deployment has zero available replicas
+```
+
+Return:
+
+```json
+{
+  "confidence": 92,
+  "confidence_explanation": ""
+}
 ```
 
 ---
 
+# 6. Severity Engine
 
-### 6. Incident Severity Engine
+Create:
 
-
-Generate severity for every diagnosis.
+```text
+severity_engine.py
+```
 
 Supported values:
 
 ```text
 Critical
+
 High
+
 Medium
+
 Low
 ```
 
-Default to:
+Default:
 
 ```text
 Medium
 ```
 
-if the LLM does not return a valid severity.
-
----
+if no valid severity is produced.
 
 Example:
 
@@ -304,116 +373,154 @@ Example:
 Severity: Critical
 ```
 
-Reasoning:
+Explanation:
 
 ```text
-Critical because:
+Payment service unavailable
 
-- Payment service is unavailable
-- Multiple replicas are unhealthy
-- Users cannot access the application
+All replicas unhealthy
+
+User traffic impacted
 ```
 
----
-
-Another Example:
+Another example:
 
 ```text
 Severity: High
 ```
 
-Reasoning:
+Explanation:
 
 ```text
-High because:
+Deployment degraded
 
-- Deployment is degraded
-- Some replicas are unavailable
-- Service is partially impacted
+Partial service impact
 ```
 
-The AI should always provide a short explanation for the selected severity level.
+Return:
 
+```json
+{
+  "severity": "HIGH",
+  "severity_explanation": ""
+}
+```
 
 ---
 
-## FastAPI Integration
+# 7. Diagnosis Service
 
+Create:
+
+```text
+diagnosis_service.py
+```
+
+Responsibilities:
+
+```text
+Receive Investigation Payload
+        ↓
+Build Prompt
+        ↓
+Call OpenRouter
+        ↓
+Generate Diagnosis
+        ↓
+Calculate Confidence
+        ↓
+Calculate Severity
+        ↓
+Return Structured Result
+```
+
+---
+
+# FastAPI Integration
 
 Update:
 
-```text id="6iyqrb"
+```text
 POST /investigate
 ```
 
-New Flow:
+Flow:
 
-```text id="b1x5mt"
+```text
 Collect Kubernetes Evidence
         ↓
-Send to AI Kubernetes Agent
+Send To AI Kubernetes Agent
         ↓
 LLM Reasoning
         ↓
 Root Cause Analysis
         ↓
+Confidence Scoring
+        ↓
 Severity Classification
         ↓
 Generate kubectl Commands
         ↓
-Find Similar Incidents
-        ↓
-Store Investigation History
-        ↓
-Generate Investigation Report
-        ↓
 Return Diagnosis
 ```
 
-Example API Response:
+Response:
 
-```json id="jvqbhj"
+```json
 {
   "status": "success",
   "diagnosis": {
-    "root_cause": "DATABASE_URL missing",
-    "explanation": "Application cannot connect to the database because the required environment variable is missing.",
-    "suggested_fix": "Add the DATABASE_URL environment variable to the deployment.",
-    "kubectl_command": "kubectl edit deployment payment-service",
-    "confidence": 92,
-    "severity": "High",
-    "similar_incident_found": true,
-    "report_generated": true
+    "root_cause": "",
+    "explanation": "",
+    "suggested_fix": "",
+    "kubectl_commands": [],
+    "prevention_recommendation": "",
+    "confidence": 0,
+    "confidence_explanation": "",
+    "severity": "",
+    "severity_explanation": "",
+    "analysis_source": ""
   }
 }
 ```
 
-The response should be displayed in the Frontend Diagnosis Dashboard and stored in Investigation History.
+analysis_source values:
+
+```text
+AI
+
+Fallback Rule Engine
+```
 
 ---
 
-## Constraints
+# Constraints
 
 DO NOT implement:
 
+```text
 Authentication
-Investigation history
-Realtime updates
-Frontend changes
-Deployment
+
+Investigation History
+
+Similar Incident Finder
+
+Report Generator
+
+Realtime Updates
+
+Frontend Changes
+```
+
 Only build the AI reasoning layer.
 
-Keep implementation beginner friendly.
+Do not break existing code.
 
-Do not overengineer.
-
-DO NOT BREAK EXISTING CODE.
-
-Only extend existing functionality.
+Keep implementation modular and beginner friendly.
 
 ---
 
-## Expected Result
+# Expected Result
 
 When I call:
 
@@ -424,19 +531,23 @@ POST /investigate
 The system should:
 
 ```text
-Investigate Kubernetes
+Collect Evidence
         ↓
-Reason about failures
+Analyze Kubernetes Failures
         ↓
-Find root cause
+Determine Root Cause
         ↓
-Suggest fix
+Generate Fixes
         ↓
-Score confidence and severity
+Generate kubectl Commands
         ↓
-Return diagnosis
+Calculate Confidence
+        ↓
+Classify Severity
+        ↓
+Return Diagnosis
 ```
 
 The backend should now behave like:
 
-> A Senior Kubernetes SRE helping troubleshoot incidents.
+> A Senior Kubernetes SRE helping troubleshoot Kubernetes incidents.
